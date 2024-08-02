@@ -1,7 +1,8 @@
 # PolkaVM Examples
 
 How to run different languages in PolkaVM. All examples use the [Dockerfile](Dockerfile) to get a clang-18 compiler
-with correct RISC support.
+with correct RISC support.  
+You can build it with `podman build -t pvm .` (or `docker` instead of `podman`).
 
 ## C
 
