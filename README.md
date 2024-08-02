@@ -22,4 +22,4 @@ Three ways to fix:
 
 ## `found an export without a relocation for a pointer to the metadata at <section #3+1>`
 
-Your linker flags are minced. Ensure that they have at least `-Wl,--error-limit=0 -Wl,--emit-relocs -Wl,--no-relax`.
+Your linker flags are minced. Ensure that they contain `-Wl,--emit-relocs`.
