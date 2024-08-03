@@ -12,7 +12,7 @@ Its functionality is currently limited to `u32` types for arguments and return.
 For example, call the `entry` function with arguments 42 and 69 and provide a host function that returns 100:
 
 ```
-cd pvmi
+cd pvme
 cargo r -- call ../test.pvm entry 42 69 --host-functions "get_third_number:100"
 ```
 
