@@ -4,7 +4,19 @@ How to run different languages in PolkaVM. All examples use the [Dockerfile](Doc
 with correct RISC support.  
 You can build it with `podman build -t pvm .` (or `docker` instead of `podman`).
 
-## C
+## Universal PVM Executor
+
+The `pvmi` folder contains a small CLI that can be used to run PVM programs and inject mocked host calls.  
+Its functionality is currently limited to `u32` types for arguments and return.
+
+For example, call the `entry` function with arguments 42 and 69 and provide a host function that returns 100:
+
+```
+cd pvmi
+cargo r -- call ../test.pvm entry 42 69 --host-functions "get_third_number:100"
+```
+
+## Example: C
 
 File [test.c](test.c) contains a minimal example with an entry point and one host call `get_third_number`. Run with `make`.
 
