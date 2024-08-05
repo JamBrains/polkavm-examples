@@ -1,5 +1,5 @@
 all: test.pvm
-	cargo r -q --frozen
+	cargo r	--manifest-path pvme/Cargo.toml -q --frozen -- call test.pvm entry 1 2 --host-functions "get_third_number:3"
 
 test.pvm: test.elf
 	polkatool link -s test.elf -o test.pvm

@@ -214,7 +214,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pvmi"
+name = "pvme"
 version = "0.1.0"
 dependencies = [
  "anyhow",
