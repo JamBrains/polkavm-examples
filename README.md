@@ -2,7 +2,7 @@
 
 How to run different languages in PolkaVM. All examples use the [Dockerfile](Dockerfile) to get a clang-18 compiler
 with correct RISC support.  
-You can build it with `podman build -t pvm .` (or `docker` instead of `podman`).
+You can build it with `podman build -t pvm .` (or `docker` instead of `podman`) and install the linker with `cargo install --git https://github.com/koute/polkavm polkatool`.
 
 ## Universal PVM Executor
 
@@ -36,3 +36,7 @@ Three ways to fix:
 ## `found an export without a relocation for a pointer to the metadata at <section #3+1>`
 
 Your linker flags are minced. Ensure that they contain `-Wl,--emit-relocs`.
+
+## `failed to link "test.elf": truncated ecalli instruction`
+
+This was a but in polkatool, update it with `cargo install --git https://github.com/koute/polkavm polkatool`.
