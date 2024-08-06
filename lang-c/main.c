@@ -8,6 +8,3 @@ uint32_t entry(uint32_t a, uint32_t b) {
 }
 
 POLKAVM_EXPORT(uint32_t, entry, uint32_t, uint32_t);
-
-// Make the linker happy.
-void _start() { POLKAVM_TRAP(); }
