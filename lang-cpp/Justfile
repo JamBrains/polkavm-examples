@@ -9,7 +9,7 @@ run:
     pvme call main.pvm entry 1 2 --host-functions "get_third_number:3"    
 
 build:
-    $DOCKER run --rm -it -v{{justfile_directory()}}:/opt pvm clang++-18 \
+    $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang++-18 \
         --target=riscv32 \
         -march=rv32emc \
         -mabi=ilp32e \

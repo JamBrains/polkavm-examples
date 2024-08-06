@@ -7,7 +7,7 @@ The project uses [`just`](https://github.com/casey/just) to run commands. Try it
 
 ```bash
 cargo install just
-just podman # or docker
+just docker # or podman
 just
 ```
 
