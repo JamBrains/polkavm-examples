@@ -32,5 +32,6 @@ jobs:
     
     - name: Run Examples
       run: |
+        export PATH="$PATH:$HOME/bin"
         just docker
         just
