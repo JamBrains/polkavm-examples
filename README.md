@@ -3,7 +3,13 @@
 How to run different languages in PolkaVM. All examples use the [Dockerfile](Dockerfile) to get a clang-18 compiler
 with correct RISC support.
 
-The project uses [`just`](https://github.com/casey/just) to run commands. Try it with `just`.
+The project uses [`just`](https://github.com/casey/just) to run commands. Try it with:
+
+```bash
+cargo install just
+just podman # or docker
+just
+```
 
 # Universal PVM Executor
 
