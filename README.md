@@ -1,8 +1,9 @@
 # PolkaVM Examples
 
 How to run different languages in PolkaVM. All examples use the [Dockerfile](Dockerfile) to get a clang-18 compiler
-with correct RISC support.  
-You can build it with `podman build -t pvm .` (or `docker` instead of `podman`) and install the linker with `cargo install --git https://github.com/koute/polkavm polkatool`.
+with correct RISC support.
+
+The project uses [`just`](https://github.com/casey/just) to run commands. Try it with `just`.
 
 # Universal PVM Executor
 

@@ -1,8 +1,33 @@
 set quiet
+set dotenv-load
 
 default: lang-c lang-cpp
 
-dependencies: pvme polkatool
+dependencies: env image pvme polkatool
+
+env:
+	#!/usr/bin/env sh
+	if [ ! -f .env ]; then
+		echo "Please run either 'just docker' or 'just podman' first"
+		exit 1
+	fi
+	echo "Using env: $(cat .env)"
+
+# Check if the docker iamge is present
+image:
+	#!/usr/bin/env sh
+	if ! $DOCKER inspect --type=image pvm > /dev/null 2>&1; then
+		echo "Docker image not found. Building..."
+		$DOCKER build -t pvm .
+	else
+		echo "Docker image found"
+	fi
+
+docker:
+	echo "DOCKER=docker" > .env
+
+podman:
+	echo "DOCKER=podman" > .env
 
 # Recipe for installing pvme
 pvme:
