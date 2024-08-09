@@ -23,9 +23,11 @@ image:
 		echo "Docker image found"
 	fi
 
+# Set docker as the preferred container runtime
 docker:
 	echo "DOCKER=docker" > .env
 
+# Set podman as the preferred container runtime
 podman:
 	echo "DOCKER=podman" > .env
 

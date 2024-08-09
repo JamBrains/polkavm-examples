@@ -6,7 +6,7 @@ default: build run
 
 run:
     printf "C example: "
-    pvme call main.pvm entry 1 2 --host-functions "get_third_number:3"    
+    pvme call main.pvm entry 8 8 --host-functions "get_third_number:3"
 
 build:
     $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-18 \
