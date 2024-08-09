@@ -31,6 +31,7 @@ build:
         main.cpp \
         -o main.elf
     polkatool link -s main.elf -o main.pvm
+    rm main.elf
 
 clean:
     rm -f main.elf main.pvm
