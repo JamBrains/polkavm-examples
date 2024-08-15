@@ -35,7 +35,7 @@ podman:
 pvme:
     #!/usr/bin/env sh
     if ! command -v pvme > /dev/null 2>&1; then
-        cargo install --path pvme
+        cargo install --locked --path pvme
     fi
 
 # Recipe for installing polkatool
