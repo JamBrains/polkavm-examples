@@ -5,7 +5,7 @@ use anyhow::anyhow;
 use std::fs::File;
 use std::io::Read;
 use polkavm::Instance;
-use polkavm::ExecutionError;
+use polkavm::CallError;
 
 #[derive(Parser)]
 struct Root {
@@ -56,17 +56,17 @@ impl Run {
         let config = Config::from_env().unwrap();
         let engine = Engine::new(&config).unwrap();
         let module = Module::from_blob(&engine, &Default::default(), blob).unwrap();
-        let mut linker = Linker::new(&engine);
+        let mut linker = Linker::new();
         self.mock_host_fns(&mut linker)?;
 
         // Link the host functions with the module.
         let instance_pre = linker.instantiate_pre(&module).unwrap();
 
         // Instantiate the module.
-        let instance = instance_pre.instantiate().unwrap();
+        let mut instance = instance_pre.instantiate().unwrap();
 
         let args = self.parse_args()?;
-        let result = Self::call_with_args(&instance, &self.function, &args)?;
+        let result = Self::call_with_args(&mut instance, &self.function, &args)?;
 
         println!("{}", result);
 
@@ -77,21 +77,21 @@ impl Run {
         self.args.iter().map(|arg| arg.parse::<u32>().map_err(Into::into)).collect()
     }
 
-    fn call_with_args(instance: &Instance<()>, f: &str, args: &[u32]) -> Result<u32> {
+    fn call_with_args(instance: &mut Instance<()>, f: &str, args: &[u32]) -> Result<u32> {
         // We use the typed versions here which restrict us a bit, but later on we can use the untyped ones for more flexibility.
 
-        match args.len() {
+       match args.len() {
             0 => {
-                instance.call_typed::<(), u32>(&mut (), f, ()).map_err(Self::convert_err)
+                instance.call_typed_and_get_result::<u32, ()>(&mut (), f, ()).map_err(Self::convert_error)
             },
             1 => {
-                instance.call_typed::<(u32,), u32>(&mut (), f, (args[0],)).map_err(Self::convert_err)
+                instance.call_typed_and_get_result::<u32, (u32,)>(&mut (), f, (args[0],)).map_err(Self::convert_error)
             },
             2 => {
-                instance.call_typed::<(u32, u32), u32>(&mut (), f, (args[0], args[1])).map_err(Self::convert_err)
+                instance.call_typed_and_get_result::<u32, (u32, u32)>(&mut (), f, (args[0], args[1])).map_err(Self::convert_error)
             },
             3 => {
-                instance.call_typed::<(u32, u32, u32), u32>(&mut (), f, (args[0], args[1], args[2])).map_err(Self::convert_err)
+                instance.call_typed_and_get_result::<u32, (u32, u32, u32)>(&mut (), f, (args[0], args[1], args[2])).map_err(Self::convert_error)
             },
             n => {
                 Err(anyhow!("Unsupported number of arguments: {}> 3", n))
@@ -99,11 +99,12 @@ impl Run {
         }
     }
 
-    fn convert_err(e: ExecutionError<polkavm::Error>) -> anyhow::Error {
+    fn convert_error(e: CallError<core::convert::Infallible>) -> anyhow::Error {
         match e {
-            ExecutionError::Trap(e) => anyhow!("↯ Trap: {}", e),
-            ExecutionError::Error(e) => anyhow!("■ Halt: {}", e),
-            ExecutionError::OutOfGas => anyhow!("∞ OutOfGas"),
+            CallError::Trap => anyhow!("Trap"),
+            CallError::NotEnoughGas => anyhow!("Not enough gas"),
+            CallError::Error(e) => anyhow!("Error: {:?}", e),
+            CallError::User(e) => anyhow!("User error: {:?}", e),
         }
     }
 
@@ -117,7 +118,7 @@ impl Run {
             let name = parts[0];
             let value = parts[1].parse::<u32>()?;
 
-            linker.func_wrap(name, move || -> u32 { value }).unwrap();
+            linker.define_typed(name, move || -> u32 { value }).unwrap();
         }
 
         Ok(())

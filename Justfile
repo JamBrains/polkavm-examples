@@ -42,7 +42,7 @@ pvme:
 polkatool:
     #!/usr/bin/env sh
     if ! command -v polkatool > /dev/null 2>&1; then
-        cargo install --git https://github.com/koute/polkavm polkatool
+        cargo install --git https://github.com/koute/polkavm --ref 9e4383389a43671881f03ec05d080ca1d9b32cb0 polkatool
     fi
 
 lang-c: dependencies
