@@ -38,11 +38,21 @@ pvme:
 # Recipe for installing polkatool
 polkatool:
     #!/usr/bin/env sh
+    NEEDS_INSTALL=0
 
-    # Check that we have version 0.10.x installed
-    VERSION=$(polkatool --version | cut -d' ' -f2)
-    read -r MAJOR MINOR PATCH <<< $(echo $VERSION | tr '.' ' ')
-    if [ $MAJOR -ne 0 ] || [ $MINOR -ne 10 ]; then
+    # Check if polkatool is installed
+    if ! command -v polkatool > /dev/null 2>&1; then
+        NEEDS_INSTALL=1
+    else
+        # Check that we have version 0.10.x installed
+        VERSION=$(polkatool --version | cut -d' ' -f2)
+        read -r MAJOR MINOR PATCH <<< $(echo $VERSION | tr '.' ' ')
+        if [ $MAJOR -ne 0 ] || [ $MINOR -ne 10 ]; then
+            NEEDS_INSTALL=1
+        fi
+    fi
+
+    if [ $NEEDS_INSTALL -eq 1 ]; then
         echo "Installing polkatool version 0.10.x"
         cargo install --force --git https://github.com/koute/polkavm --rev 9e4383389a43671881f03ec05d080ca1d9b32cb0 polkatool
     fi
