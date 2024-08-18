@@ -1,11 +1,11 @@
-use polkavm::{Config, Engine, Linker, Module, ProgramBlob};
-use clap::Parser;
-use anyhow::Result;
 use anyhow::anyhow;
+use anyhow::Result;
+use clap::Parser;
+use polkavm::CallError;
+use polkavm::Instance;
+use polkavm::{Config, Engine, Linker, Module, ProgramBlob};
 use std::fs::File;
 use std::io::Read;
-use polkavm::Instance;
-use polkavm::CallError;
 
 #[derive(Parser)]
 struct Root {
@@ -74,28 +74,33 @@ impl Run {
     }
 
     fn parse_args(&self) -> Result<Vec<u32>> {
-        self.args.iter().map(|arg| arg.parse::<u32>().map_err(Into::into)).collect()
+        self.args
+            .iter()
+            .map(|arg| arg.parse::<u32>().map_err(Into::into))
+            .collect()
     }
 
     fn call_with_args(instance: &mut Instance<()>, f: &str, args: &[u32]) -> Result<u32> {
         // We use the typed versions here which restrict us a bit, but later on we can use the untyped ones for more flexibility.
 
-       match args.len() {
-            0 => {
-                instance.call_typed_and_get_result::<u32, ()>(&mut (), f, ()).map_err(Self::convert_error)
-            },
-            1 => {
-                instance.call_typed_and_get_result::<u32, (u32,)>(&mut (), f, (args[0],)).map_err(Self::convert_error)
-            },
-            2 => {
-                instance.call_typed_and_get_result::<u32, (u32, u32)>(&mut (), f, (args[0], args[1])).map_err(Self::convert_error)
-            },
-            3 => {
-                instance.call_typed_and_get_result::<u32, (u32, u32, u32)>(&mut (), f, (args[0], args[1], args[2])).map_err(Self::convert_error)
-            },
-            n => {
-                Err(anyhow!("Unsupported number of arguments: {}> 3", n))
-            }
+        match args.len() {
+            0 => instance
+                .call_typed_and_get_result::<u32, ()>(&mut (), f, ())
+                .map_err(Self::convert_error),
+            1 => instance
+                .call_typed_and_get_result::<u32, (u32,)>(&mut (), f, (args[0],))
+                .map_err(Self::convert_error),
+            2 => instance
+                .call_typed_and_get_result::<u32, (u32, u32)>(&mut (), f, (args[0], args[1]))
+                .map_err(Self::convert_error),
+            3 => instance
+                .call_typed_and_get_result::<u32, (u32, u32, u32)>(
+                    &mut (),
+                    f,
+                    (args[0], args[1], args[2]),
+                )
+                .map_err(Self::convert_error),
+            n => Err(anyhow!("Unsupported number of arguments: {}> 3", n)),
         }
     }
 
