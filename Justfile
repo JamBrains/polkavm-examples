@@ -30,14 +30,14 @@ podman:
 
 # Recipe for installing pvme
 pvme:
-    #!/usr/bin/env sh
+    #!/usr/bin/env bash
     if ! command -v pvme > /dev/null 2>&1; then
         cargo install --path pvme
     fi
 
 # Recipe for installing polkatool
 polkatool:
-    #!/usr/bin/env sh
+    #!/usr/bin/env bash
     NEEDS_INSTALL=0
 
     # Check if polkatool is installed
