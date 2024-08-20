@@ -19,7 +19,7 @@ uint32_t entry(uint32_t a) {
 	}
 
 	// Host calls do not work yet:
-	// sum += get_third_number();
+	sum += get_third_number();
 
 	return sum;
 }
