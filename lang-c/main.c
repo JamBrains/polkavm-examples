@@ -18,7 +18,6 @@ uint32_t entry(uint32_t a) {
 		sum += i;
 	}
 
-	// Host calls do not work yet:
 	sum += get_third_number();
 
 	return sum;
