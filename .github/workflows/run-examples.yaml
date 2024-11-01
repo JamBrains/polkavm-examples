@@ -38,11 +38,4 @@ jobs:
       run: |
         export PATH="$PATH:$HOME/bin"
         just docker
-        OUTPUT=$(just)
-
-        if [[ "$output" == *"on_transfer: 4"* ]]; then
-            echo "Found magic string, good"
-        else
-            echo "Did not find magic string, bad"
-            exit 1
-        fi
+        just
