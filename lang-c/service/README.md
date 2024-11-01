@@ -71,4 +71,4 @@ Which then gets turned into this Polka assembly:
     38: ret
 ```
 
-The pipeline to arrive at this is `C code` -> `clang` -> `polkatool link` -> `polkatool disassemble` -> `python merge.py` -> `polkatool assemble` -> `PVM` 
+The pipeline to arrive at this is `C code` -> `clang` -> `polkatool link` -> `polkatool disassemble` -> `python merge.py` -> `polkatool assemble` -> `PVM`.
