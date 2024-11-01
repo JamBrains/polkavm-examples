@@ -2,11 +2,17 @@ set quiet
 set dotenv-path := "../.env"
 
 # Define default recipe
-default: build run service
+default: build run
 
 run:
-    printf "C example: "
-    pvme call main.pvm entry 8 8 --host-functions "get_third_number:3"
+    printf "is_authorized: "
+    pvme call main.pvm is_authorized
+    printf "refine: "
+    pvme call main.pvm refine 2
+    printf "accumulate: "
+    pvme call main.pvm accumulate 3
+    printf "on_transfer: "
+    pvme call main.pvm on_transfer 2
 
 build:
     $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-18 \
@@ -31,10 +37,10 @@ build:
         main.c \
         -o main.elf
     polkatool link -s main.elf -o main.pvm
-    rm main.elf
+    polkatool disassemble main.pvm --output main.dis
+    python3 merge.py main.dis main.psm.template main.out
+    polkatool assemble main.out --output main.pvm
+    rm main.elf main.dis main.out
 
 clean:
-    rm -f main.elf main.pvm && just service/clean
-
-service:
-    just service/
+    rm -f main.elf main.pvm
