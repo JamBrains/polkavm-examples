@@ -47,14 +47,14 @@ polkatool:
         # Check that we have version 0.10.x installed
         VERSION=$(polkatool --version | cut -d' ' -f2)
         read -r MAJOR MINOR PATCH <<< $(echo $VERSION | tr '.' ' ')
-        if [ $MAJOR -ne 0 ] || [ $MINOR -ne 10 ]; then
+        if [ $MAJOR -ne 0 ] || [ $MINOR -ne 15 ]; then
             NEEDS_INSTALL=1
         fi
     fi
 
     if [ $NEEDS_INSTALL -eq 1 ]; then
-        echo "Installing polkatool version 0.10.x"
-        cargo install --force --git https://github.com/koute/polkavm --rev 9e4383389a43671881f03ec05d080ca1d9b32cb0 polkatool
+        echo "Installing polkatool version 0.15.x"
+        cargo install --force --git https://github.com/koute/polkavm --rev 5f9681bd2bced634f9249bb3836f59e530b1918c polkatool
     fi
 
 lang-c: dependencies
