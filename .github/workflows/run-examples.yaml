@@ -18,6 +18,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
     - name: Install Just
       run: |
         # create ~/bin
