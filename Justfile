@@ -1,9 +1,9 @@
 set quiet
 set dotenv-load
 
-default: lang-c lang-cpp
+default: lang-c lang-cpp lang-rust
 
-dependencies: env image pvme polkatool
+dependencies: env image pvme polkatool servicebuilder
 
 env:
     #!/usr/bin/env sh
@@ -44,17 +44,25 @@ polkatool:
     if ! command -v polkatool > /dev/null 2>&1; then
         NEEDS_INSTALL=1
     else
-        # Check that we have version 0.10.x installed
+        # Check that we have version 0.21.x installed
         VERSION=$(polkatool --version | cut -d' ' -f2)
         read -r MAJOR MINOR PATCH <<< $(echo $VERSION | tr '.' ' ')
-        if [ $MAJOR -ne 0 ] || [ $MINOR -ne 15 ]; then
+        if [ $MAJOR -ne 0 ] || [ $MINOR -ne 21 ]; then
             NEEDS_INSTALL=1
         fi
     fi
 
     if [ $NEEDS_INSTALL -eq 1 ]; then
-        echo "Installing polkatool version 0.15.x"
-        cargo install --force --git https://github.com/koute/polkavm --rev 5f9681bd2bced634f9249bb3836f59e530b1918c polkatool
+        echo "Installing polkatool version 0.21.x"
+        cargo install --force --git https://github.com/koute/polkavm --rev 78eab63bdf85ced46598e34d9c396e6d59b591e1 polkatool
+    fi
+
+servicebuilder:
+    #!/usr/bin/env bash
+
+    if ! command -v jam-pvm-build > /dev/null 2>&1; then
+        rustup toolchain install nightly-2024-11-01 -c rust-src 
+        cargo install jam-pvm-build
     fi
 
 lang-c: dependencies
@@ -63,6 +71,10 @@ lang-c: dependencies
 lang-cpp: dependencies
     just lang-cpp/
 
+lang-rust: dependencies
+    just lang-rust/service/
+
 clean:
     just lang-c/clean
     just lang-cpp/clean
+    just lang-rust/clean
