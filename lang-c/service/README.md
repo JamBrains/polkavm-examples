@@ -1,6 +1,11 @@
-# Service
+# C Service Assembly
 
-Example service in C. See [main.c](main.c) for the code:
+Some hacky scripts to build a JAM service in C.
+
+- [Example service](./example/main.c)
+- [Null Authorizer](./null-authorizer/main.c)
+
+The entry points look like this:
 
 ```c
 uint32_t is_authorized() {
@@ -20,7 +25,7 @@ uint32_t on_transfer(uint32_t a) {
 }
 ```
 
-Which then gets turned into this Polka assembly:
+The the PolkaVM assembly output:
 
 ```pre
       : @0

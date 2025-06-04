@@ -6,8 +6,6 @@ import sys
 import re
 
 def main(args):
-	print(f'Merging {args.assembly} with {args.template} to {args.output}')
-
 	with open(args.assembly, 'r') as f:
 		assembly = f.read()
 	with open(args.template, 'r') as f:

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.89"
-clap = { version = "4.5.20", features = ["derive"] }
-env_logger = "0.11.5"
-polkavm = { git = "https://github.com/koute/polkavm", rev = "5f9681bd2bced634f9249bb3836f59e530b1918c" }
+anyhow = "1.0.95"
+clap = { version = "4.5.30", features = ["derive"] }
+env_logger = "0.11.6"
+polkavm = { git = "https://github.com/koute/polkavm", rev = "78eab63bdf85ced46598e34d9c396e6d59b591e1" }
