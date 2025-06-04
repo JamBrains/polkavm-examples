@@ -45,4 +45,4 @@ Your linker flags are minced. Ensure that they contain `-Wl,--emit-relocs`.
 
 ### `failed to link "test.elf": truncated ecalli instruction`
 
-This was a but in polkatool, update it with `cargo install --git https://github.com/koute/polkavm polkatool`.
+This was a bug in polkatool, update it with `cargo install --git https://github.com/koute/polkavm polkatool`.

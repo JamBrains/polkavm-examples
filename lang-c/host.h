@@ -7,7 +7,11 @@
 
 #define POLKAVM_REGS_FOR_TY_void 0
 #define POLKAVM_REGS_FOR_TY_i32 1
-#define POLKAVM_REGS_FOR_TY_i64 2
+#ifdef _LP64
+    #define POLKAVM_REGS_FOR_TY_i64 1
+#else
+    #define POLKAVM_REGS_FOR_TY_i64 2
+#endif
 
 #define POLKAVM_REGS_FOR_TY_int8_t    POLKAVM_REGS_FOR_TY_i32
 #define POLKAVM_REGS_FOR_TY_uint8_t   POLKAVM_REGS_FOR_TY_i32
@@ -60,6 +64,14 @@
     ".byte %[arg_4]\n" \
     ".byte %[arg_5]\n" \
     ".byte %[arg_6]\n"
+#define POLKAVM_ARG_ASM_4_7(A, B, C, D, E, F, G) \
+    ".byte %[arg_1]\n" \
+    ".byte %[arg_2]\n" \
+    ".byte %[arg_3]\n" \
+    ".byte %[arg_4]\n" \
+    ".byte %[arg_5]\n" \
+    ".byte %[arg_6]\n" \
+    ".byte %[arg_7]\n"
 
 #define POLKAVM_ARG_ASM_3(N, ...) POLKAVM_ARG_ASM_4_ ## N(__VA_ARGS__)
 #define POLKAVM_ARG_ASM_2(N, ...) POLKAVM_ARG_ASM_3(N, ## __VA_ARGS__)
@@ -79,6 +91,8 @@
     POLKAVM_REGS_FOR_TY(A) + POLKAVM_REGS_FOR_TY(B) + POLKAVM_REGS_FOR_TY(C) + POLKAVM_REGS_FOR_TY(D) + POLKAVM_REGS_FOR_TY(E)
 #define POLKAVM_COUNT_REGS_4_6(A, B, C, D, E, F) \
     POLKAVM_REGS_FOR_TY(A) + POLKAVM_REGS_FOR_TY(B) + POLKAVM_REGS_FOR_TY(C) + POLKAVM_REGS_FOR_TY(D) + POLKAVM_REGS_FOR_TY(E) + POLKAVM_REGS_FOR_TY(F)
+#define POLKAVM_COUNT_REGS_4_7(A, B, C, D, E, F, G) \
+    POLKAVM_REGS_FOR_TY(A) + POLKAVM_REGS_FOR_TY(B) + POLKAVM_REGS_FOR_TY(C) + POLKAVM_REGS_FOR_TY(D) + POLKAVM_REGS_FOR_TY(E) + POLKAVM_REGS_FOR_TY(F) + POLKAVM_REGS_FOR_TY(G)
 
 #define POLKAVM_COUNT_REGS_3(N, ...) POLKAVM_COUNT_REGS_4_ ## N(__VA_ARGS__)
 #define POLKAVM_COUNT_REGS_2(N, ...) POLKAVM_COUNT_REGS_3(N, ## __VA_ARGS__)
@@ -91,6 +105,7 @@
 #define POLKAVM_IMPORT_ARGS_IMPL_4_4(A0, A1, A2, A3) A0 a0, A1 a1, A2 a2, A3 a3
 #define POLKAVM_IMPORT_ARGS_IMPL_4_5(A0, A1, A2, A3, A4) A0 a0, A1 a1, A2 a2, A3 a3, A4 a4
 #define POLKAVM_IMPORT_ARGS_IMPL_4_6(A0, A1, A2, A3, A4, A5) A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5
+#define POLKAVM_IMPORT_ARGS_IMPL_4_7(A0, A1, A2, A3, A4, A5, A6) A0 a0, A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6
 
 #define POLKAVM_IMPORT_ARGS_IMPL_3(N, ...) POLKAVM_IMPORT_ARGS_IMPL_4_ ## N(__VA_ARGS__)
 #define POLKAVM_IMPORT_ARGS_IMPL_2(N, ...) POLKAVM_IMPORT_ARGS_IMPL_3(N, ## __VA_ARGS__)
@@ -105,16 +120,46 @@ struct PolkaVM_Metadata {
     unsigned char output_regs;
 } __attribute__ ((packed));
 
+struct PolkaVM_Metadata_V2 {
+    unsigned char version;
+    unsigned int flags;
+    unsigned int symbol_length;
+    const char * symbol;
+    unsigned char input_regs;
+    unsigned char output_regs;
+    unsigned char has_index;
+    unsigned int index;
+} __attribute__ ((packed));
+
+#ifdef _LP64
+    #define POLKAVM_EXPORT_DEF()  \
+        ".quad %[metadata]\n" \
+        ".quad %[function]\n"
+#else
+    #define POLKAVM_EXPORT_DEF()  \
+        ".word %[metadata]\n" \
+        ".word %[function]\n"
+#endif
+
+#ifdef _LP64
+    #define POLKAVM_IMPORT_DEF()  \
+        ".word 0x0000000b\n" \
+        ".quad %[metadata]\n"
+#else
+    #define POLKAVM_IMPORT_DEF()  \
+        ".word 0x0000000b\n" \
+        ".word %[metadata]\n"
+#endif
+
 #define POLKAVM_EXPORT(arg_return_ty, fn_name, ...) \
 static struct PolkaVM_Metadata POLKAVM_JOIN(fn_name, __EXPORT_METADATA) __attribute__ ((section(".polkavm_metadata"))) = { \
     1, 0, sizeof(#fn_name) - 1, #fn_name, POLKAVM_COUNT_REGS(__VA_ARGS__), POLKAVM_COUNT_REGS(arg_return_ty) \
 }; \
 static void __attribute__ ((naked, used)) POLKAVM_UNIQUE(polkavm_export_dummy)() { \
     __asm__( \
-        ".pushsection .polkavm_exports,\"R\",@note\n" \
+        ".pushsection .polkavm_exports,\"Ra\",@note\n" \
         ".byte 1\n" \
-        ".word %[metadata]\n" \
-        ".word %[function]\n" \
+        POLKAVM_EXPORT_DEF() \
         ".popsection\n" \
         : \
         : \
@@ -130,8 +175,22 @@ static struct PolkaVM_Metadata POLKAVM_JOIN(fn_name, __IMPORT_METADATA) __attrib
 }; \
 static arg_return_ty __attribute__ ((naked)) fn_name(POLKAVM_IMPORT_ARGS_IMPL(__VA_ARGS__)) { \
     __asm__( \
-        ".word 0x0000000b\n" \
-        ".word %[metadata]\n" \
+        POLKAVM_IMPORT_DEF() \
+        "ret\n" \
+        : \
+        : \
+          [metadata] "i" (&POLKAVM_JOIN(fn_name, __IMPORT_METADATA)) \
+        : "memory" \
+    ); \
+}
+
+#define POLKAVM_IMPORT_WITH_INDEX(index, arg_return_ty, fn_name, ...) \
+static struct PolkaVM_Metadata_V2 POLKAVM_JOIN(fn_name, __IMPORT_METADATA) __attribute__ ((section(".polkavm_metadata"))) = { \
+    2, 0, sizeof(#fn_name) - 1, #fn_name, POLKAVM_COUNT_REGS(__VA_ARGS__), POLKAVM_COUNT_REGS(arg_return_ty), 1, index \
+}; \
+static arg_return_ty __attribute__ ((naked)) fn_name(POLKAVM_IMPORT_ARGS_IMPL(__VA_ARGS__)) { \
+    __asm__( \
+        POLKAVM_IMPORT_DEF() \
         "ret\n" \
         : \
         : \
