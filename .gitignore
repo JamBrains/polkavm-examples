@@ -2,3 +2,4 @@
 pvme/target
 *.elf
 .env
+*.pmv
