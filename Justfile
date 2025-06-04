@@ -1,9 +1,9 @@
 set quiet
 set dotenv-load
 
-default: lang-c lang-cpp lang-rust
+default: lang-c lang-cpp # lang-rust
 
-dependencies: env image pvme polkatool servicebuilder
+dependencies: env image pvme polkatool # servicebuilder
 
 env:
     #!/usr/bin/env sh
@@ -71,7 +71,7 @@ lang-c: dependencies
 lang-cpp: dependencies
     just lang-cpp/
 
-lang-rust: dependencies
+lang-rust: dependencies # Defunct
     just lang-rust/service/
 
 clean:
