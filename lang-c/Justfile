@@ -1,8 +1,8 @@
 set quiet
 set dotenv-path := "../.env"
 
-# Define default recipe
-default: build run service
+# Define default recipe # disable service
+default: build run
 
 run:
     printf "C example: "
@@ -10,9 +10,10 @@ run:
 
 build:
     $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-18 \
-        --target=riscv32 \
-        -march=rv32emc \
-        -mabi=ilp32e \
+        --target=riscv64-unknown-none-elf \
+        -march=rv64emac_zbb_xtheadcondmov \
+        -mabi=lp64e \
+        -Wno-unused-command-line-argument \
         -nostdlib \
         -nodefaultlibs \
         -fpic \
@@ -22,6 +23,7 @@ build:
         -gdwarf-5 \
         -g3 \
         -O3 \
+        -ggdb \
         -fno-exceptions \
         -fno-rtti \
         -Wl,--error-limit=0 \

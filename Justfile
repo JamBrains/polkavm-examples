@@ -47,21 +47,21 @@ polkatool:
         # Check that we have version 0.21.x installed
         VERSION=$(polkatool --version | cut -d' ' -f2)
         read -r MAJOR MINOR PATCH <<< $(echo $VERSION | tr '.' ' ')
-        if [ $MAJOR -ne 0 ] || [ $MINOR -ne 21 ]; then
+        if [ $MAJOR -ne 0 ] || [ $MINOR -ne 24 ]; then
             NEEDS_INSTALL=1
         fi
     fi
 
     if [ $NEEDS_INSTALL -eq 1 ]; then
-        echo "Installing polkatool version 0.21.x"
-        cargo install --force --git https://github.com/koute/polkavm --rev 78eab63bdf85ced46598e34d9c396e6d59b591e1 polkatool
+        echo "Installing polkatool version 0.24.x"
+        cargo install --force --git https://github.com/koute/polkavm --rev 5f7ef9d1c26e8605ebf3463762a5aca2e6bd512b polkatool
     fi
 
 servicebuilder:
     #!/usr/bin/env bash
 
     if ! command -v jam-pvm-build > /dev/null 2>&1; then
-        rustup toolchain install nightly-2024-11-01 -c rust-src 
+        #rustup toolchain install nightly-2024-11-01 -c rust-src 
         cargo install jam-pvm-build
     fi
 
