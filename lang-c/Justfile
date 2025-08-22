@@ -5,11 +5,21 @@ set dotenv-path := "../.env"
 default: build run
 
 run:
+    #!/usr/bin/env bash
+
     printf "C example: "
-    pvme call main.pvm entry 8 8 --host-functions "get_third_number:3"
+    #pvme call main.pvm entry 8 8 --host-functions "get_third_number:3"
+    cd ../../graymatter/packages/gm-core
+    GM_LOG=debug mix test test/jam/pvm/blob_test.exs --only only
 
 build:
-    $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-18 \
+    just compile main.elf main.c
+    
+    polkatool link -s main.elf -o main.pvm
+    polkatool disassemble main.pvm -o main.asm
+
+compile out_file *in_files:
+    $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-20 \
         --target=riscv64-unknown-none-elf \
         -march=rv64emac_zbb_xtheadcondmov \
         -mabi=lp64e \
@@ -30,10 +40,11 @@ build:
         -Wl,--emit-relocs \
         -Wl,--no-relax \
         -Wl,--entry=entry \
-        main.c \
-        -o main.elf
-    polkatool link -s main.elf -o main.pvm
-    rm main.elf
+        {{in_files}} \
+        -o {{out_file}}
+
+watch:
+    echo "main.c" | entr -c "just"
 
 clean:
     rm -f main.elf main.pvm && just service/clean

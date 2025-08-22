@@ -14,7 +14,7 @@ run:
     pvme call main.pvm on_transfer 2
 
 build:
-    $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-18 \
+    $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-20 \
         --target=riscv32 \
         -march=rv32emc \
         -mabi=ilp32e \
@@ -39,7 +39,7 @@ build:
     polkatool disassemble main.pvm --output main.dis
     python3 ../merge.py main.dis main.psm.template main.out
     polkatool assemble main.out --output main.pvm
-    rm main.elf main.dis main.out
+    #rm main.elf main.dis main.out
 
 clean:
     rm -f main.elf main.pvm

@@ -2,7 +2,6 @@
 # and then patches up the template file with the assembly code.
 
 import argparse
-import sys
 import re
 
 def main(args):
