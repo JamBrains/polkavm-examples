@@ -1,6 +1,8 @@
 #include "jb_service.h"
+#include "jb_pvm_check.h"
 
 #include <stddef.h>
+#include <stdint.h>
 #include <sys/auxv.h>
 
 #define JAM_REG_0 "a0"
@@ -17,23 +19,12 @@
 #define JAM_REG_11 "a11"
 #define JAM_REG_12 "a12"
 
-extern void _pvm_start(long *p);
+extern void _pvm_start(uint64_t *p);
 
 // prelude
 void jb_init(char const* const name) {
 	jb_log_info(name, "Initializing...");
-}
-
-void jb_log(uint64_t level, char const* const target, char const* const msg) {
-	jb_host_log(level, target, msg);
-}
-
-void jb_log_info(char const* const target, char const* const msg) {
-	jb_log(JB_LOG_LEVEL_INFO, target, msg);
-}
-
-void jb_log_warn(char const* const target, char const* const msg) {
-	jb_log(JB_LOG_LEVEL_WARN, target, msg);
+	jb_pvm_check_full();
 }
 
 uint64_t jb_service_gas_remaining() {
@@ -63,37 +54,19 @@ void return_to_host(const char *const data, const uint64_t len) {
 		: JAM_REG_0, JAM_REG_1);
 }
 
-void _start_c(long *p);
+void _start_c(uint64_t *p);
 
 void _jb_hook_on_transfer()
 {
-	// some mocked env stuff
-	long argv[2];
-	argv[0] = (long)"jam-service";
-	argv[1] = (long)NULL;
+	uint64_t argv[2] = { (uint64_t)"jam-service", (uint64_t)NULL };
+	uint64_t auxv[3] = { AT_PAGESZ, 4096, (uint64_t)NULL }; // TODO pass in AT_RANDOM
+	uint64_t args[4] = { 1, (uint64_t)argv, (uint64_t)NULL, (uint64_t)auxv };
 
-	// Add auxv if needed by _pvm_start
-	long auxv[3];
-	// TODO pass in AT_RANDOM
-	auxv[0] = AT_PAGESZ;
-	auxv[1] = 4096;
-	auxv[2] = 0; // null terminator
-
-	long args[4];
-	args[0] = 1;		  // argc
-	args[1] = (long)argv; // argv
-	args[2] = (long)NULL; // envp (empty)
-	args[3] = (long)auxv; // auxv
-
-	_pvm_start(args);
+	_start_c(args);
 }
 
-void entry() { /* optimized out, just to make the linker happy */ }
 int main(int _argc, char **_argv)
 {
-	jb_log_info("jam-service", "MAIN");
-	jb_log_info("jam-service", "STARTING");
-
 	char *out_data = NULL;
 	uint64_t out_data_len = 0;
 
@@ -103,8 +76,7 @@ int main(int _argc, char **_argv)
 	return 0;
 }
 
-void _jb_hook_is_authorized()
-{
+void _jb_hook_is_authorized() {
 	jb_hook_is_authorized();
 }
 

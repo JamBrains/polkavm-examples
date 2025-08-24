@@ -18,12 +18,7 @@ struct _jb_service_info {
 	uint32_t parent_slot;
 } __attribute__((packed));
 
+#define JB_SERVICE_INFO_SIZE 96
 typedef struct _jb_service_info jb_service_info_t;
 
 typedef uint64_t jb_log_level_t;
-
-#define JB_LOG_LEVEL_ERROR 0
-#define JB_LOG_LEVEL_WARN 1
-#define JB_LOG_LEVEL_INFO 2
-#define JB_LOG_LEVEL_DEBUG 3
-#define JB_LOG_LEVEL_TRACE 4

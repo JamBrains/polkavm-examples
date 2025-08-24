@@ -2,12 +2,10 @@
 
 #include "host_functions.h"
 #include "jb_service_types.h"
+#include "jb_log.h"
 #include "host.h"
 
 void jb_init(char const* const name);
-void jb_log(uint64_t level, char const *const target, char const *const msg);
-void jb_log_info(char const *const target, char const *const msg);
-void jb_log_warn(char const *const target, char const *const msg);
 
 uint64_t jb_service_gas_remaining();
 uint64_t jb_service_balance();

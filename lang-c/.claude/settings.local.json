@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nm:*)",
+      "Bash(objdump:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

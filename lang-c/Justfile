@@ -13,13 +13,14 @@ run:
     #GM_LOG=debug mix test test/jam/pvm/blob_test.exs --only only
 
 build:
-    just compile main.elf main.c host_functions.c host_functions_untyped.c jb_service.c linux_syscall.c
+    just compile main.elf main.c host_functions.c host_functions_untyped.c jb_service.c linux_syscall.c jb_asset.c jb_pvm_check.c jb_log.c
     
-    polkatool link --dispatch-table "_jb_hook_on_transfer,_jb_hook_on_transfer,_jb_hook_on_transfer,_jb_hook_on_transfer" -s main.elf -o main.pvm
+    # TODO stack size? this is from musl `DEFAULT_STACK_SIZE`
+    polkatool link --min-stack-size 131072 --dispatch-table "_jb_hook_on_transfer,_jb_hook_on_transfer,_jb_hook_on_transfer,_jb_hook_on_transfer" -s main.elf -o main.pvm
     polkatool disassemble main.pvm -o main.asm
 
 compile out_file *in_files:
-    polkavm-cc -Wl,--error-limit=0 -flto -O0 {{in_files}} -o {{out_file}}
+    polkavm-cc -Wl,--error-limit=0 -O0 {{in_files}} -o {{out_file}}
 
 compile_docker out_file *in_files:
     $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-20 \
