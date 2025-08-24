@@ -1,5 +1,8 @@
-#include "host.h"
+#include "jb_service.h"
+
 #include <stdint.h>
+#include <time.h>
+#include <stdio.h>
 
 #define JAM_REG_0 "a0"
 #define JAM_REG_1 "a1"
@@ -15,29 +18,7 @@
 #define JAM_REG_11 "a11"
 #define JAM_REG_12 "a12"
 
-// Dont use these directly. TODO put in another file.
-POLKAVM_IMPORT(uint64_t, gas); // Simplest host call and it has index 0. So it goes first.
-POLKAVM_IMPORT(void, log, uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
-
-void prelude() {
-	__asm__ volatile("li " JAM_REG_0 ", 0");
-	__asm__ volatile("li " JAM_REG_1 ", 0");
-}
-
-void return_to_host(const char* const data, const uint64_t len) {
-	__asm__ volatile (
-        "mv " JAM_REG_0 ", %0\n\t"
-        "mv " JAM_REG_1 ", %1"
-        :
-        : "r" (data), "r" (len)
-        : JAM_REG_0, JAM_REG_1
-    );
-}
-
-// Reg 7 is the service ID
-void jam_host_function_info_raw(uint64_t service_id) {
-    //info(service_id);
-}
+#define NAME "JamBrains Example Service"
 
 uint64_t strcpy(char* dest, char const* src) {
     uint64_t i = 0;
@@ -70,6 +51,8 @@ uint64_t itoa(uint64_t n, char* str) {
         str[j] = str[i - j - 1];
         str[i - j - 1] = temp;
     }
+    str[i] = '\0';
+    
     return i;
 }
 
@@ -79,44 +62,42 @@ void memset(char* str, char c, uint64_t n) {
     }
 }
 
-void entry(void) {
-    __asm__ volatile (
-        // Offset 0: Jump to is_authorized
-        "jal x0, on_transfer\n\t"
-    );
-}
-
-void on_transfer() {
-	prelude();
+void jb_hook_on_transfer(char** out_ptr, uint64_t* out_len) {
+    jb_init(NAME);
+    jb_log_info("asdf", "jb_hook_on_transfer");
 
     // Log something
-    //log(1, (uint64_t)"test", 4, (uint64_t)"LOOOOOOOOOG", 12);
-    //uint64_t g = gas();
-    //char buff[1024];
-    //memset(buff, 0, 1024);
+    char str[128];
+    strcpy(str, "Initial balance: ");
+    itoa(jb_service_balance(), str + strlen(str));
+    jb_log_info(NAME, str);
 
-    char const* const data = "Hello World";
-    //strcpy(buff, data);
-    // append the current gas
-    //itoa(g, buff);
+    for (uint64_t i = 0; i < 2; i++) {
+        char str[128];
+        strcpy(str, "Gas remaining: ");
+        itoa(jb_service_gas_remaining(), str + strlen(str));
+        //snprintf(str, 128, "Gas remaining: %lu", jb_service_gas_remaining());
+        //jb_log_info(NAME, str);
+    }
 
-	return_to_host((char*)data, strlen(data));
+    jb_log_info(NAME, "BEFORE");
+    //printf("%s", "PRINTF WORKS FUCK YEA\n");
+    clock();
+    jb_log_info(NAME, "AFTER");
+
+    char const* const data = "Finished";
+    *out_ptr = data;
+    *out_len = strlen(data);
 }
 
-void is_authorized() {
+void jb_hook_is_authorized() {
 
 }
 
-void refine() {
+void jb_hook_refine() {
 
 }
 
-void accumulate() {
+void jb_hook_accumulate() {
 
 }
-
-POLKAVM_EXPORT(void, entry);
-POLKAVM_EXPORT(void, on_transfer);
-POLKAVM_EXPORT(void, is_authorized);
-POLKAVM_EXPORT(void, refine);
-POLKAVM_EXPORT(void, accumulate);

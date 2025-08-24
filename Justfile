@@ -44,7 +44,7 @@ polkatool:
     if ! command -v polkatool > /dev/null 2>&1; then
         NEEDS_INSTALL=1
     else
-        # Check that we have version 0.21.x installed
+        # Check that we have version 0.24.x installed
         VERSION=$(polkatool --version | cut -d' ' -f2)
         read -r MAJOR MINOR PATCH <<< $(echo $VERSION | tr '.' ' ')
         if [ $MAJOR -ne 0 ] || [ $MINOR -ne 24 ]; then
@@ -54,7 +54,7 @@ polkatool:
 
     if [ $NEEDS_INSTALL -eq 1 ]; then
         echo "Installing polkatool version 0.24.x"
-        cargo install --force --git https://github.com/koute/polkavm --rev 5f7ef9d1c26e8605ebf3463762a5aca2e6bd512b polkatool
+        #cargo install --force --git https://github.com/koute/polkavm --rev 5850b0e44affc87e4e7e5f60e5613a7266beed7b polkatool
     fi
 
 servicebuilder:
@@ -78,3 +78,87 @@ clean:
     just lang-c/clean
     just lang-cpp/clean
     just lang-rust/clean
+
+clang-wrapper:
+    #!/usr/bin/env bash
+    FLAGS="--target=riscv64-unknown-none-elf \
+        -march=rv64emac_zbb_xtheadcondmov \
+        -mabi=lp64e \
+        -Wno-unused-command-line-argument \
+        -nostdlib \
+        -nodefaultlibs \
+        -fpic \
+        -fPIE \
+        -mrelax \
+        -g3 \
+        -O3 \
+        -Wl,--error-limit=0 \
+        -Wl,--emit-relocs \
+        -Wl,--no-relax \
+        -Wl,--entry=entry"
+    CROSS_FLAGS="--sysroot=/opt/sysroot \
+        -isysroot=$PWD/sysroot \
+        -L $PWD/sysroot/lib \
+        $PWD/sysroot/lib/Scrt1.o \
+        $PWD/sysroot/lib/crti.o \
+        $PWD/sysroot/lib/crtn.o"
+
+    # Create a shell wrapper for clang
+    cat >clang <<EOF
+    #!/usr/bin/env sh
+    exec '$DOCKER' run --rm -v"\$PWD":/opt pvm clang-20 $FLAGS "\$@"
+    EOF
+    chmod +x clang
+
+    cat >clang++ <<EOF
+    #!/usr/bin/env sh
+    exec '$DOCKER' run --rm -v"\$PWD":/opt pvm clang++-20 $FLAGS "\$@"
+    EOF
+    chmod +x clang++
+
+    # Now also for guest program
+    cat >clang-guest <<EOF
+    #!/usr/bin/env sh
+    exec '$DOCKER' run --rm -v"\$PWD":/opt pvm clang-20 $FLAGS $CROSS_FLAGS "\$@"
+    EOF
+    chmod +x clang-guest
+
+    cat >clang++-guest <<EOF
+    #!/usr/bin/env sh
+    exec '$DOCKER' run --rm -v"\$PWD":/opt pvm clang++-20 $FLAGS $CROSS_FLAGS "\$@"
+    EOF
+    chmod +x clang++-guest
+
+sysroot: clang-wrapper picolib musl
+    #!/usr/bin/env bash
+    set -e
+
+    rm -rf sysroot
+    mkdir sysroot
+    mv ./clang-guest ./clang++-guest ./clang ./clang++ sysroot/
+
+    # includes
+    mkdir -p sysroot/include
+    cp -rv musl/code/include/* sysroot/include
+    cp -rv musl/code/arch/generic/* sysroot/include
+    cp -rv musl/code/arch/riscv64/* sysroot/include
+    cp -rv musl/code/obj/include/* sysroot/include
+
+    cp corevm_guest.h sysroot/include/
+
+    # libs
+    mkdir -p sysroot/lib
+    cp -v musl/code/lib/*.a sysroot/lib
+    cp -v musl/code/lib/*.o sysroot/lib
+
+    # Use the repackaged libc
+    cp -v musl/repack/libc.a sysroot/lib
+
+    echo "export PATH=$PWD/sysroot:\$PATH" > .env
+    echo "Run 'source .env' to set the path"
+
+picolib:
+    just picolib/
+
+musl:
+    just musl/

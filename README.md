@@ -1,6 +1,6 @@
 # PolkaVM Examples
 
-How to run different languages in PolkaVM. All examples use the [Dockerfile](Dockerfile) to get a clang-18 compiler
+How to run different languages in PolkaVM. All examples use the [Dockerfile](Dockerfile) to get a clang-20 compiler
 with correct RISC support.
 
 The project uses [`just`](https://github.com/casey/just) to run commands. Try it with:
@@ -46,3 +46,9 @@ Your linker flags are minced. Ensure that they contain `-Wl,--emit-relocs`.
 ### `failed to link "test.elf": truncated ecalli instruction`
 
 This was a bug in polkatool, update it with `cargo install --git https://github.com/koute/polkavm polkatool`.
+
+
+## TODO Oliver
+- Check make version >= 4 `GNU Make >= 4.0 is required. Your Make version is 3.81.  Stop.`
+- Check versions https://github.com/paritytech/polkaports//blob/fa0c2d1c2143b961eff1aa2c47cb9f1295863380/.github/workflows/ci.yml#L40-L49
+- Check sed, maybe need gnu sed https://stackoverflow.com/questions/4247068/sed-command-with-i-option-failing-on-mac-but-works-on-linux

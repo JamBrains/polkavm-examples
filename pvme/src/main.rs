@@ -110,6 +110,7 @@ impl Run {
             CallError::NotEnoughGas => anyhow!("Not enough gas"),
             CallError::Error(e) => anyhow!("Error: {:?}", e),
             CallError::User(e) => anyhow!("User error: {:?}", e),
+            CallError::Step => anyhow!("Step"),
         }
     }
 

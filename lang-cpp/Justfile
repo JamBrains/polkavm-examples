@@ -9,7 +9,7 @@ run:
     pvme call main.pvm entry 1 2 --host-functions "get_third_number:3"
 
 build:
-    $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-18 \
+    $DOCKER run --rm -v{{justfile_directory()}}:/opt pvm clang-20 \
         --target=riscv64-unknown-none-elf \
         -march=rv64emac_zbb_xtheadcondmov \
         -mabi=lp64e \

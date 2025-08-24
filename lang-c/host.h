@@ -7,6 +7,7 @@
 
 #define POLKAVM_REGS_FOR_TY_void 0
 #define POLKAVM_REGS_FOR_TY_i32 1
+
 #ifdef _LP64
     #define POLKAVM_REGS_FOR_TY_i64 1
 #else
