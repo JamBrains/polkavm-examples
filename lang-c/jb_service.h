@@ -5,6 +5,9 @@
 #include "jb_log.h"
 #include "host.h"
 
+/// @brief Initialize the service.
+/// @param name The name of your service. Should be ASCII and brief.
+/// @note MUST be called when the service is first deployed and MAY be called at any time.
 void jb_init(char const* const name);
 
 /// @brief Get the chain parameters.
