@@ -1,24 +1,7 @@
 #include "jb_service.h"
 
 #include <stdint.h>
-#include <time.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define JAM_REG_0 "a0"
-#define JAM_REG_1 "a1"
-#define JAM_REG_2 "a2"
-#define JAM_REG_3 "a3"
-#define JAM_REG_4 "a4"
-#define JAM_REG_5 "a5"
-#define JAM_REG_6 "a6"
-#define JAM_REG_7 "a7"
-#define JAM_REG_8 "a8"
-#define JAM_REG_9 "a9"
-#define JAM_REG_10 "a10"
-#define JAM_REG_11 "a11"
-#define JAM_REG_12 "a12"
 
 #define NAME "JamBrains Example Service"
 
