@@ -7,6 +7,9 @@
 
 void jb_init(char const* const name);
 
+jb_chain_params_t jb_chain_params();
+uint64_t jb_chain_entropy_32(uint8_t* entropy_32);
+
 uint64_t jb_service_gas_remaining();
 uint64_t jb_service_balance();
 

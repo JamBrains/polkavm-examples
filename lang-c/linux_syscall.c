@@ -73,7 +73,7 @@ extern uint64_t pvm_syscall(uint64_t syscall_id, uint64_t arg1, uint64_t arg2, u
 
 			uint64_t level = fd == FD_COUT ? JB_LOG_LEVEL_INFO : JB_LOG_LEVEL_ERROR;
 			
-			jb_host_log_untyped(level, (uint64_t)"linux_syscall::writev", 21, (uint64_t)msg, len);
+			jb_host_log_untyped(level, (uint64_t)"writev", 6, (uint64_t)msg, len);
 
 			cum_len += len;
 		}
@@ -100,29 +100,8 @@ extern uint64_t pvm_syscall(uint64_t syscall_id, uint64_t arg1, uint64_t arg2, u
 		return 0;
 	}
 	default: {
-		// FIXME TODO OMFG fix this shitty code
-		uint64_t id = syscall_id;
-		char buf[128];
-		int i = 0;
-		if (id < 0)
-		{
-			buf[i++] = '-';
-			id = -id;
-		}
-		uint64_t temp = id;
-		int digits = 0;
-		do
-		{
-			digits++;
-			temp /= 10;
-		} while (temp);
-		buf[i + digits] = '\0';
-		do
-		{
-			buf[i + --digits] = '0' + (id % 10);
-			id /= 10;
-		} while (id);
-
+		char buf[100];
+		snprintf(buf, sizeof(buf), "unknown syscall %ld", syscall_id);
 		jb_log_warn("linux_syscall", buf);
 		return -1;
 	}

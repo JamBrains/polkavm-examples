@@ -27,6 +27,16 @@ void jb_init(char const* const name) {
 	jb_pvm_check_full();
 }
 
+jb_chain_params_t jb_chain_params() {
+	jb_chain_params_t params;
+	jb_host_fetch((char*)&params, 0, JB_CHAIN_PARAMS_SIZE, JB_FETCH_DISCRIMINATOR_CHAIN_PARAMS, 0, 0);
+	return params;
+}
+
+uint64_t jb_chain_entropy_32(uint8_t* entropy_32) {
+	return jb_host_fetch((char*)entropy_32, 0, 32, JB_FETCH_DISCRIMINATOR_CHAIN_ENTROPY32, 0, 0);
+}
+
 uint64_t jb_service_gas_remaining() {
 	return jb_host_gas();
 }

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define JAM_REG_0 "a0"
@@ -25,13 +26,25 @@ void jb_hook_on_transfer(char** out_ptr, uint64_t* out_len) {
     jb_init(NAME);
 
     printf("Initial Balance: %lu, gas remaining: %lu\n", jb_service_balance(), jb_service_gas_remaining());
-
-    puts("Doing a lil sum...");
-    uint64_t sum = 0;
-    for (uint64_t i = 0; i < 100; i++) {
-        sum += i;
+    // Print some chain params
+    char entropy[32];
+    jb_chain_entropy_32((uint8_t*)entropy);
+    // print hex string
+    for (int i = 0; i < 32; i++) {
+        printf("%02x", entropy[i]);
     }
-    printf("Sum: %lu\n", sum);
+    puts("");
+
+    char* buffer = malloc(1000);
+    if (!buffer) {
+        jb_log_error("malloc", "Failed to allocate buffer");
+    }
+
+    memset(buffer, 1000, 1);
+    jb_chain_params_t params = jb_chain_params();
+    jb_chain_params_fmt(&params, buffer, 1000);
+    printf("MyString: '%s'\n", buffer);
+    free(buffer);
 
     printf("Finished, gas remaining: %lu\n", jb_service_gas_remaining());
 }
