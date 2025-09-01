@@ -12,13 +12,16 @@ env:
         exit 1
     fi
 
-# Check if the docker iamge is present
+# Check if the docker image is present
 image:
     #!/usr/bin/env sh
-    if ! $DOCKER inspect --type=image pvm > /dev/null 2>&1; then
+    if ! $DOCKER inspect --type=image service-builder > /dev/null 2>&1; then
         echo "Docker image not found. Building..."
-        $DOCKER build -t pvm .
+        $DOCKER build -t service-builder .
     fi
+
+build-image: env
+    $DOCKER build -t service-builder .
 
 # Set docker as the preferred container runtime
 docker:

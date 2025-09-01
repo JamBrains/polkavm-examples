@@ -1,0 +1,42 @@
+set dotenv-path := "../.env"
+
+# Set CC flags
+export CC_FLAGS := "-Wl,--error-limit=0 -flto -O0 -std=gnu23 -I/opt/sdk"
+export POLKATOOL_FLAGS := "--min-stack-size 131072 --dispatch-table '_jb_hook_accumulate,_jb_hook_accumulate,_jb_hook_accumulate,_jb_hook_accumulate'"
+
+# Define default recipe # disable service
+default: build
+
+build:
+	just compile 01-hello-world.elf 01-hello-world.c
+	#just link 01-hello-world.pvm 01-hello-world.elf
+
+compile out_file *in_files:
+	#!/usr/bin/env bash
+	set -ex
+
+	# List all files in /opt/sdk
+	FILES=$(ls ../sdk/*.c)
+	# Replace their relative path with an absolute path of /opt/sdk
+	#FILES=$(echo $FILES | sed 's|../sdk/|/opt/sdk/|g')
+
+	polkavm-cc \
+		{{CC_FLAGS}} \
+		{{in_files}} \
+		$FILES \
+		-o {{out_file}}
+
+link out_file *in_files:
+	@$DOCKER run --rm -v{{justfile_directory()}}:/app -v{{justfile_directory()}}/../sdk:/opt/sdk service-builder polkatool link \
+		{{POLKATOOL_FLAGS}} \
+		{{in_files}} \
+		-o {{out_file}}
+
+clean:
+	rm -f *.elf *.pvm
+
+watch:
+	ls . | entr -c "just"
+
+service:
+	just service/
