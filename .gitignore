@@ -7,3 +7,4 @@ lang-c/*.asm
 .DS_Store
 .env
 sdk/output/
+examples/output/

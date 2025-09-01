@@ -7,20 +7,23 @@ export POLKATOOL_FLAGS := "--min-stack-size 131072 --dispatch-table '_jb_hook_ac
 # Define default recipe # disable service
 default: build
 
-build:
-	just compile 01-hello-world.elf 01-hello-world.c
-	#just link 01-hello-world.pvm 01-hello-world.elf
+build: output
+	just compile output/01-hello-world.elf 01-hello-world.c
+	just link output/01-hello-world.pvm output/01-hello-world.elf
+
+output:
+	mkdir -p output
 
 compile out_file *in_files:
 	#!/usr/bin/env bash
-	set -ex
+	set -e
 
 	# List all files in /opt/sdk
 	FILES=$(ls ../sdk/*.c)
 	# Replace their relative path with an absolute path of /opt/sdk
-	#FILES=$(echo $FILES | sed 's|../sdk/|/opt/sdk/|g')
+	FILES=$(echo $FILES | sed 's|../sdk/|/opt/sdk/|g')
 
-	polkavm-cc \
+	$DOCKER run --rm -v/Users/vados/Documents/work/polkavm-examples/examples:/app -v/Users/vados/Documents/work/polkavm-examples/sdk:/opt/sdk service-builder polkavm-cc \
 		{{CC_FLAGS}} \
 		{{in_files}} \
 		$FILES \
@@ -33,7 +36,7 @@ link out_file *in_files:
 		-o {{out_file}}
 
 clean:
-	rm -f *.elf *.pvm
+	rm -rf output/
 
 watch:
 	ls . | entr -c "just"
